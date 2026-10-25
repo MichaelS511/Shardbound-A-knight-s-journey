@@ -108,6 +108,7 @@ document.querySelectorAll('.touch button').forEach(b=>{const code=b.dataset.key;
 function rect(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
 function isScorpionSpecies(species){return species==='dunescorpion'}
 function enemyHasFloor(e,x){const feet=e.y+42;return platforms.some(pl=>Math.abs(feet-pl.y)<3&&x+30>pl.x&&x+2<pl.x+pl.w)}
+function enemyBelowPlayerPlatform(e,p){const feet=p.y+p.h;return platforms.some(pl=>p.x+p.w>pl.x&&p.x<pl.x+pl.w&&Math.abs(feet-pl.y)<4&&e.y+21>=pl.y+4)}
 function burst(x,y,color,n=8){for(let i=0;i<n;i++){let a=Math.random()*Math.PI*2,s=45+Math.random()*150;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-25,life:.35+Math.random()*.4,max:.75,color,size:2+Math.random()*3,spin:(Math.random()-.5)*9,rotation:Math.random()*Math.PI})}}
 function critDamage(base,x,y){if(Math.random()<.3){burst(x,y,'#fff06a',15);particles.push({x,y,vx:0,vy:-48,life:.8,max:.8,color:'#fff06a',size:13,text:'CRIT! ×3'});return base*3}return base}
 function enemyHitDamage(target,base,x,y){const critical=Math.random()<.3;if(!critical&&target.armored&&Math.random()<.1){burst(x,y,'#b9d3de',7);particles.push({x,y,vx:0,vy:-35,life:.65,max:.65,color:'#d7eaf0',size:12,text:'BLOCKED'});return 0}if(critical){burst(x,y,'#fff06a',12);particles.push({x,y,vx:0,vy:-48,life:.8,max:.8,color:'#fff06a',size:12,text:'CRIT! ×2'});return base*2}return base}
@@ -135,10 +136,11 @@ function update(dt){if(gameState!=='playing')return;dt=Math.min(dt,.033);if(vict
  enemies.forEach(e=>{
    if(e.hp<=0)return;
    e.t-=dt;e.swing=Math.max(0,(e.swing||0)-dt);
-   if(e.kind==='beast'){const dx=p.x+p.w/2-(e.x+16),distance=Math.abs(dx);e.dir=dx<0?-1:1;e.cooldown=Math.max(0,e.cooldown-dt);if(e.windup>0){e.windup-=dt;if(e.windup<=0){e.pounce=.45;e.pounceDir=e.dir;e.vy=isScorpionSpecies(e.species)?-90:-270}}if(e.pounce>0||e.y<groundY-42){e.pounce=Math.max(0,e.pounce-dt);const nx=Math.max(e.min,Math.min(e.max,e.x+e.pounceDir*(isScorpionSpecies(e.species)?185:255)*dt));e.x=nx;e.y+=e.vy*dt;e.vy+=850*dt;if(e.y>=groundY-42){e.y=groundY-42;e.vy=0;e.pounce=0}}else{const nx=e.x+e.dir*(distance<360?72:24)*dt;if(nx>=e.min&&nx<=e.max&&enemyHasFloor(e,nx))e.x=nx;if(e.cooldown<=0&&distance<(isScorpionSpecies(e.species)?115:155)&&Math.abs(p.y-e.y)<78){e.windup=.34;e.cooldown=isScorpionSpecies(e.species)?2.6:2.1}}if(rect({x:e.x,y:e.y,w:32,h:42},{x:p.x,y:p.y,w:p.w,h:p.h})){const enemyInFront=p.face>0?e.x+16>p.x+p.w/2:e.x+16<p.x+p.w/2;if(p.block>0&&enemyInFront)burst(e.x+16,e.y+20,'#d5edf1',6);else damage(true,e.x+16)}return}
+   if(e.kind==='beast'){const dx=p.x+p.w/2-(e.x+16),distance=Math.abs(dx),underPlatform=enemyBelowPlayerPlatform(e,p);if(!underPlatform&&distance>14)e.dir=dx<0?-1:1;e.cooldown=Math.max(0,e.cooldown-dt);if(e.windup>0){e.windup-=dt;if(e.windup<=0){e.pounce=.45;e.pounceDir=e.dir;e.vy=isScorpionSpecies(e.species)?-90:-270}}if(e.pounce>0||e.y<groundY-42){e.pounce=Math.max(0,e.pounce-dt);const nx=Math.max(e.min,Math.min(e.max,e.x+e.pounceDir*(isScorpionSpecies(e.species)?185:255)*dt));e.x=nx;e.y+=e.vy*dt;e.vy+=850*dt;if(e.y>=groundY-42){e.y=groundY-42;e.vy=0;e.pounce=0}}else{const nx=e.x+e.dir*(distance<360?72:24)*dt;if(nx>=e.min&&nx<=e.max&&enemyHasFloor(e,nx))e.x=nx;if(e.cooldown<=0&&distance<(isScorpionSpecies(e.species)?115:155)&&Math.abs(p.y-e.y)<78){e.windup=.34;e.cooldown=isScorpionSpecies(e.species)?2.6:2.1}}if(rect({x:e.x,y:e.y,w:32,h:42},{x:p.x,y:p.y,w:p.w,h:p.h})){const enemyInFront=p.face>0?e.x+16>p.x+p.w/2:e.x+16<p.x+p.w/2;if(p.block>0&&enemyInFront)burst(e.x+16,e.y+20,'#d5edf1',6);else damage(true,e.x+16)}return}
   if(e.type==='sword'){
-   let dx=p.x+p.w/2-(e.x+16);e.dir=dx<0?-1:1;
-   const hunting=Math.abs(dx)<210,speed=hunting?82+(difficultyRank()-1)*9:38,nextX=e.x+e.dir*speed*dt;
+   let dx=p.x+p.w/2-(e.x+16),underPlatform=enemyBelowPlayerPlatform(e,p);
+   const hunting=Math.abs(dx)<210&&!underPlatform;if(hunting&&Math.abs(dx)>14)e.dir=dx<0?-1:1;
+   const speed=hunting?82+(difficultyRank()-1)*9:38,nextX=e.x+e.dir*speed*dt;
    if(nextX>=e.min&&nextX<=e.max&&enemyHasFloor(e,nextX))e.x=nextX;
    else if(!hunting)e.dir*=-1;
    // Telegraph inside sword approach range, then let the swing reach the player's spacing.
