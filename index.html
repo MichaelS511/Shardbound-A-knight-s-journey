@@ -137,7 +137,7 @@ function updateCourseEffects(p,dt){
   const side=Math.random()<.5?-1:1,near=Math.max(80,Math.min(worldW-80,cx+side*(170+Math.random()*130)));
   if(index===0)courseHazards.push({type:'meteor',x:safeCourseX(near,18),y:-35,warning:.72,vy:0,life:4,hit:false});
   else if(index===1)courseHazards.push({type:'bloom',x:safeCourseX(near,30),y:groundY,warning:.65,life:5.2,age:0,used:false});
-  else if(index===2){const gx=safeCourseX(cx+side*440,28),gp=platforms.find(pl=>pl.y>=groundY&&gx>=pl.x&&gx<=pl.x+pl.w);if(gp)courseHazards.push({type:'gear',x:gx,y:groundY-25,vx:-side*190,minX:gp.x+28,maxX:gp.x+gp.w-28,life:5,angle:0,hit:false})}
+  else if(index===2)courseHazards.push({type:'gear',x:safeCourseX(cx+side*440,28),y:groundY-25,vx:-side*190,vy:0,jumping:false,life:5,angle:0,hit:false});
   else if(index===3)courseHazards.push({type:'gust',x:cx-side*420,y:groundY-48,vx:side*145,life:5,hit:false});
   else if(index===4)courseHazards.push({type:'lightning',x:safeCourseX(near,18),warning:.9,active:.28,life:1.65,hit:false});
   else if(index===5)courseHazards.push({type:'gravity',x:near,y:groundY-104,life:3.8,phase:Math.random()*6});
@@ -150,7 +150,7 @@ function updateCourseEffects(p,dt){
   h.life-=dt;
   if(h.type==='meteor'){if(h.warning>0)h.warning-=dt;else{h.vy+=620*dt;h.y+=h.vy*dt;if(rect({x:h.x-17,y:h.y-17,w:34,h:34},p)&&!h.hit){h.hit=true;damage(true,h.x)}if(h.y>=groundY-8){h.life=0;burst(h.x,groundY-8,'#ff8d4d',13)}}}
   else if(h.type==='bloom'){h.age+=dt;if(h.warning>0)h.warning-=dt;if(h.warning<=0&&!h.used&&p.onGround&&Math.abs(p.y+p.h-h.y)<5&&p.x+p.w>h.x-24&&p.x<h.x+24){h.used=true;p.vy=-650;p.onGround=false;p.jumps=1;p.doubleJumpTimer=.28;burst(h.x,h.y-18,'#c8ee87',14)}}
-  else if(h.type==='gear'){const nextX=h.x+h.vx*dt;if(nextX<h.minX||nextX>h.maxX){h.life=0;burst(h.x,h.y,'#d1a967',5)}else{h.x=nextX;h.angle+=h.vx/25*dt;if(rect({x:h.x-25,y:h.y-25,w:50,h:50},p)&&!h.hit){h.hit=true;damage(true,h.x)}}}
+  else if(h.type==='gear'){const dir=Math.sign(h.vx),nextX=h.x+h.vx*dt;if(!h.jumping){const gp=platforms.find(pl=>pl.y>=groundY&&h.x>=pl.x-1&&h.x<=pl.x+pl.w+1),edge=gp?(dir>0?gp.x+gp.w-28:gp.x+28):h.x;if(!gp){h.life=0}else if(dir>0?nextX>edge:nextX<edge){const next=platforms.filter(pl=>pl.y>=groundY&&(dir>0?pl.x>=gp.x+gp.w-1:pl.x+pl.w<=gp.x+1)).sort((a,b)=>dir>0?a.x-b.x:b.x-a.x)[0],gap=next?(dir>0?next.x-(gp.x+gp.w):gp.x-(next.x+next.w)):Infinity;if(next&&gap<=170){h.x=edge;h.jumpLandX=dir>0?next.x+28:next.x+next.w-28;h.jumping=true;h.vy=-520}else{h.life=0;burst(h.x,h.y,'#d1a967',5)}}else h.x=nextX}else{h.x=nextX;if(dir>0?h.x>=h.jumpLandX:h.x<=h.jumpLandX)h.x=h.jumpLandX;h.vy+=1100*dt;h.y+=h.vy*dt;if(h.y>=groundY-25&&h.vy>0){h.y=groundY-25;h.vy=0;h.jumping=false}}if(h.life>0){h.angle+=h.vx/25*dt;if(rect({x:h.x-25,y:h.y-25,w:50,h:50},p)&&!h.hit){h.hit=true;damage(true,h.x)}}}
   else if(h.type==='gust'){h.x+=h.vx*dt;if(Math.abs(cx-h.x)<118&&Math.abs(cy-h.y)<90){p.vx+=Math.sign(h.vx)*360*dt;if(!h.hit&&Math.abs(cx-h.x)<28){h.hit=true;damage(true,h.x)}}}
   else if(h.type==='lightning'){if(h.warning>0)h.warning-=dt;else if(h.active>0){h.active-=dt;if(Math.abs(cx-h.x)<25&&!h.hit){h.hit=true;damage(true,h.x)}}}
   else if(h.type==='gravity'){h.phase+=dt;if(Math.abs(cx-h.x)<175&&Math.abs(cy-h.y)<145){p.vx+=Math.sign(h.x-cx)*250*dt;p.vy-=85*dt;if(Math.hypot(cx-h.x,cy-h.y)<48&&!h.hit){h.hit=true;damage(true,h.x)}}}
