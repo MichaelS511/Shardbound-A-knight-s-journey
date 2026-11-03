@@ -478,8 +478,8 @@ function drawPlayer(){
   if(p.bowCooldown<=0){ctx.strokeStyle='#ad8ad1';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(2,-17);ctx.lineTo(11,0);ctx.lineTo(2,17);ctx.stroke();ctx.strokeStyle='#9ff4ff';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(4,0);ctx.lineTo(23,0);ctx.stroke();ctx.fillStyle='#e8faff';ctx.beginPath();ctx.moveTo(26,0);ctx.lineTo(20,-2);ctx.lineTo(21,0);ctx.lineTo(20,2);ctx.closePath();ctx.fill()}
   ctx.restore()
  }else if(p.weapon==='mace'){
-  const progress=p.swing>0?1-p.swing/p.swingDuration:0,ease=t=>t*t*(3-2*t);let maceAngle=-.72;if(p.swing>0){if(progress<.2)maceAngle=-.72-.42*ease(progress/.2);else if(progress<.72)maceAngle=-1.14+1.95*ease((progress-.2)/.52);else maceAngle=.81-1.53*ease((progress-.72)/.28)}
-  ctx.save();ctx.translate(x+24,y+27);ctx.rotate(maceAngle);ctx.scale(.78,.78);
+  const progress=p.swing>0?1-p.swing/p.swingDuration:0,ease=t=>t*t*(3-2*t);let maceAngle=-.25;if(p.swing>0){if(progress<.2)maceAngle=-.25-.42*ease(progress/.2);else if(progress<.72)maceAngle=-.67+1.95*ease((progress-.2)/.52);else maceAngle=1.28-1.53*ease((progress-.72)/.28)}
+  ctx.save();ctx.translate(x+24,y+29);ctx.rotate(maceAngle);ctx.scale(.88,.88);
   // Dark wrapped haft with steel collars.
   ctx.lineCap='round';ctx.strokeStyle=outline;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(-11,14);ctx.lineTo(24,-19);ctx.stroke();
   ctx.strokeStyle='#292337';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-9,12);ctx.lineTo(22,-17);ctx.stroke();
