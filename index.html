@@ -477,7 +477,7 @@ function drawPlayer(){
   ctx.restore()
  }else if(p.weapon==='mace'){
   const maceSwing=p.swing>0?Math.sin(Math.PI*(1-p.swing/p.swingDuration))*8:0,spin=performance.now()/180;
-  ctx.save();ctx.translate(x+24,y+27);ctx.rotate(-.72+maceSwing*.018);
+  ctx.save();ctx.translate(x+24,y+27);ctx.rotate(-.72+maceSwing*.018);ctx.scale(.78,.78);
   // Dark wrapped haft with steel collars.
   ctx.lineCap='round';ctx.strokeStyle=outline;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(-11,14);ctx.lineTo(24,-19);ctx.stroke();
   ctx.strokeStyle='#292337';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-9,12);ctx.lineTo(22,-17);ctx.stroke();
