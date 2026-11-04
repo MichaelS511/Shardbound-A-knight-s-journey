@@ -479,7 +479,7 @@ function drawPlayer(){
   ctx.restore()
  }else if(p.weapon==='axe'){
   const progress=p.swing>0?1-p.swing/p.swingDuration:0,ease=t=>t*t*(3-2*t);let axeAngle=-.25;if(p.swing>0){if(progress<.2)axeAngle=-.25-.42*ease(progress/.2);else if(progress<.72)axeAngle=-.67+1.95*ease((progress-.2)/.52);else axeAngle=1.28-1.53*ease((progress-.72)/.28)}
-  ctx.save();ctx.translate(x+24,y+29);ctx.rotate(axeAngle);ctx.scale(.88,.88);
+  ctx.save();ctx.translate(x+24,y+29);ctx.rotate(axeAngle);ctx.scale(.78,.78);
   // Short wrapped haft, held low so the broad crescent blade stays clear of the helmet.
   ctx.lineCap='round';ctx.strokeStyle=outline;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(-13,17);ctx.lineTo(20,-19);ctx.stroke();
   ctx.strokeStyle='#292337';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-11,15);ctx.lineTo(19,-18);ctx.stroke();
